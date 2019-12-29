@@ -13,7 +13,9 @@ if [ ! -f $BASEDIR/zp-data/zenphoto.cfg.php ]; then
 	sed -i "/mysql_prefix/c\$conf['mysql_prefix'] = '';" $BASEDIR/zp-data/zenphoto.cfg.php
 fi
 
+# Ensure that Zenphoto knows that the filesystem supports UTF8
+if [ ! -f $BASEDIR/zp-data/charset_tést ]; then
+	touch $BASEDIR/zp-data/charset_tést
+fi
 
-# run apache in foreground
-/usr/sbin/apachectl -D FOREGROUND
-
+exec apache2-foreground

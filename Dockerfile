@@ -1,20 +1,21 @@
-FROM ubuntu:xenial
+FROM php:7.1.0-apache
 MAINTAINER Enric Mieza <enric@enricmieza.com>
 
-ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update \
 	&& apt-get install -y wget \
-	apache2 \
-	libapache2-mod-php \
-	php-mysql \
-	php-gd \
-	php-mbstring \
+	libpng-dev \
+	&& docker-php-ext-install mysqli \
+	&& docker-php-ext-install gd \
+	&& docker-php-ext-install gettext \
+	&& a2enmod rewrite \
 	&& apt-get clean && apt-get autoclean \
 	&& rm -rf /var/lib/apt/lists/* \
-	&& sed -i "/upload_max_filesize/c\upload_max_filesize = 20M" /etc/php/7.0/apache2/php.ini
-
-RUN groupadd -g 10000 media \
+	&& groupadd -g 10000 media \
 	&& usermod -a -G media www-data
+
+COPY php.ini /usr/local/etc/php/conf.d/php.ini
+
+COPY vhost /etc/apache2/sites-available/000-default.conf
 
 RUN rm -rf /var/www/html/* \
 	&& wget -O /zenphoto.tar.gz https://github.com/zenphoto/zenphoto/archive/zenphoto-1.4.12.tar.gz \
@@ -29,10 +30,8 @@ RUN rm -rf /var/www/html/* \
 	&& chown www-data /var/www/html/cache \
 	&& chown www-data /var/www/html/cache_html
 
-COPY vhost /etc/apache2/sites-available/000-default.conf
+COPY security /var/www/html/.htaccess
 
 COPY run.sh /run.sh
 
-EXPOSE 80
-
-CMD ["/bin/bash","/run.sh"]
+CMD ["/run.sh"]
