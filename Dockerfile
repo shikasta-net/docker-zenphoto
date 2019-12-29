@@ -2,23 +2,36 @@ FROM ubuntu:xenial
 MAINTAINER Enric Mieza <enric@enricmieza.com>
 
 ENV DEBIAN_FRONTEND noninteractive
-RUN apt-get update && \
-apt-get install -y wget \
+RUN apt-get update \
+	&& apt-get install -y wget \
 	apache2 \
 	libapache2-mod-php \
 	php-mysql \
 	php-gd \
-	php-mbstring && \
-	apt-get clean && apt-get autoclean && \
-	rm -rf /var/lib/apt/lists/*
+	php-mbstring \
+	&& apt-get clean && apt-get autoclean \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& sed -i "/upload_max_filesize/c\upload_max_filesize = 20M" /etc/php/7.0/apache2/php.ini
 
-RUN rm -rf /var/www/html/* && \
-	wget -O /zenphoto.tar.gz https://github.com/zenphoto/zenphoto/archive/zenphoto-1.4.12.tar.gz && \
-	sed -i "/upload_max_filesize/c\upload_max_filesize = 20M" /etc/php/7.0/apache2/php.ini
+RUN groupadd -g 10000 media \
+	&& usermod -a -G media www-data
+
+RUN rm -rf /var/www/html/* \
+	&& wget -O /zenphoto.tar.gz https://github.com/zenphoto/zenphoto/archive/zenphoto-1.4.12.tar.gz \
+	&& tar xfz /zenphoto.tar.gz -C /var/www/html --strip-components=1 \
+	&& rm /zenphoto.tar.gz \
+	&& mkdir /var/www/html/cache \
+	&& mkdir /var/www/html/cache_html \
+	&& chown www-data /var/www/html/albums \
+	&& chown www-data /var/www/html/uploaded \
+	&& chown www-data /var/www/html/zp-data \
+	&& chown www-data /var/www/html/plugins \
+	&& chown www-data /var/www/html/cache \
+	&& chown www-data /var/www/html/cache_html
 
 COPY vhost /etc/apache2/sites-available/000-default.conf
 
-ADD run.sh /run.sh
+COPY run.sh /run.sh
 
 EXPOSE 80
 
