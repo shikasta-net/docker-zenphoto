@@ -4,6 +4,9 @@ MAINTAINER Enric Mieza <enric@enricmieza.com>
 RUN apt-get update \
 	&& apt-get install -y wget \
 	libpng-dev \
+	&& apt-get install -y --no-install-recommends libmagickwand-dev \
+	&& pecl install imagick \
+	&& docker-php-ext-enable imagick \
 	&& docker-php-ext-install mysqli \
 	&& docker-php-ext-install gd \
 	&& docker-php-ext-install gettext \
