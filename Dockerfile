@@ -4,10 +4,13 @@ MAINTAINER Enric Mieza <enric@enricmieza.com>
 RUN apt-get update \
 	&& apt-get install -y wget \
 	libpng-dev \
-	&& apt-get install -y --no-install-recommends libmagickwand-dev \
+	&& apt-get install -y --no-install-recommends libtidy-dev libmagickwand-dev \
 	&& pecl install imagick \
 	&& docker-php-ext-enable imagick \
+	&& docker-php-ext-install tidy \
+	&& docker-php-ext-enable tidy \
 	&& docker-php-ext-install mysqli \
+	&& docker-php-ext-configure gd --with-jpeg-dir=/usr/include \
 	&& docker-php-ext-install gd \
 	&& docker-php-ext-install gettext \
 	&& a2enmod rewrite \
@@ -21,7 +24,7 @@ COPY php.ini /usr/local/etc/php/conf.d/php.ini
 COPY vhost /etc/apache2/sites-available/000-default.conf
 
 RUN rm -rf /var/www/html/* \
-	&& wget -O /zenphoto.tar.gz https://github.com/zenphoto/zenphoto/archive/zenphoto-1.4.12.tar.gz \
+	&& wget -O /zenphoto.tar.gz https://github.com/zenphoto/zenphoto/archive/v1.5.6.tar.gz \
 	&& tar xfz /zenphoto.tar.gz -C /var/www/html --strip-components=1 \
 	&& rm /zenphoto.tar.gz \
 	&& mkdir /var/www/html/cache \
