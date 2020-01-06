@@ -18,4 +18,6 @@ if [ ! -f $BASEDIR/zp-data/charset_tést ]; then
 	touch $BASEDIR/zp-data/charset_tést
 fi
 
+cp -p $BASEDIR/zp-core/images/favicon.ico $BASEDIR/favicon.ico
+
 exec apache2-foreground
