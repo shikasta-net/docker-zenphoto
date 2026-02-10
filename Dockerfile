@@ -1,5 +1,4 @@
-FROM php:7.1.0-apache
-MAINTAINER Enric Mieza <enric@enricmieza.com>
+FROM php:8.2.0-apache
 
 RUN apt-get update \
 	&& apt-get install -y wget \
@@ -17,10 +16,11 @@ RUN apt-get update \
 	&& docker-php-ext-enable imagick \
 	&& docker-php-ext-install tidy \
 	&& docker-php-ext-enable tidy \
-	&& docker-php-ext-install mysqli \
-	&& docker-php-ext-configure gd --with-jpeg-dir=/usr/include \
+	&& docker-php-ext-install mysqli pdo_mysql \
+	&& docker-php-ext-configure gd --with-jpeg=/usr/include \
 	&& docker-php-ext-install gd \
-	&& docker-php-ext-install gettext \
+	&& docker-php-ext-install gettext exif bz2 \
+	&& docker-php-ext-install intl \
 	&& a2enmod rewrite \
 	&& apt-get clean && apt-get autoclean \
 	&& rm -rf /var/lib/apt/lists/* \
@@ -32,7 +32,7 @@ COPY php.ini /usr/local/etc/php/conf.d/php.ini
 COPY vhost /etc/apache2/sites-available/000-default.conf
 
 RUN rm -rf /var/www/html/* \
-	&& wget -O /zenphoto.tar.gz https://github.com/zenphoto/zenphoto/archive/v1.5.6.tar.gz \
+	&& wget -O /zenphoto.tar.gz https://github.com/zenphoto/zenphoto/archive/v1.6.8.tar.gz \
 	&& tar xfz /zenphoto.tar.gz -C /var/www/html --strip-components=1 \
 	&& rm /zenphoto.tar.gz \
 	&& mkdir /var/www/html/cache \
